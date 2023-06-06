@@ -66,7 +66,7 @@ void init_ship(){
 }
 
 void print_ship(){
-  mvaddch(LINES/2,COLS/2,'B');
+  mvaddch(1,COLS/2,'B');
 }
 
 int **bombs;
