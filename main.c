@@ -16,9 +16,11 @@
 
 
 void INIT() {
+  initscr();  
   WINDOW *win = initscr();
   curs_set(0);
   nonl();
+  //scrollok(); //main.c:23:3: error: too few arguments to function ‘scrollok’
   start_color();
   init_pair(1, COLOR_BLUE, COLOR_BLUE);
   init_pair(2, COLOR_YELLOW, COLOR_YELLOW);
@@ -66,7 +68,7 @@ void init_ship(){
 }
 
 void print_ship(){
-  mvaddch(1,COLS/2,'B');
+  mvaddch(32,ship,'8');
 }
 
 int **bombs;
