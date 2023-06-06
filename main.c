@@ -12,7 +12,7 @@
 //penser a chercher le shmilblick dans gnome-characters
 //j'ai toujours paul@localhost:~/Documents/Ratrapages C/Workspace> qui s'affiche quand je lance, j'essaie direct dans un tty en vm (suse)
 
-//git 1
+//git 2
 
 
 void INIT() {
