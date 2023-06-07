@@ -72,7 +72,13 @@ void print_ship(){
 }
 
 int **bombs;
-void init_bombs();
+
+void init_bombs(){
+  int nbBombs = 15;
+  bombs = malloc(sizeof(int *)*nbBombs);
+
+}
+    
 void print_bombs();
 
 int **shots;
