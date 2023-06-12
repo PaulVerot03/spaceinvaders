@@ -8,15 +8,15 @@
 // https://invisible-island.net/ncurses/ncurses-intro.html#stdscr
 // https://fr.wikipedia.org/wiki/Table_des_caract%C3%A8res_Unicode/U25A0 
 
-//en testant sur plusieur écrans : 1080*1920 => 62*272 || 1050*1680 => 62*237 || 1600*900 (vertical) => 96*126 ||| {stty size}
-//penser a chercher le shmilblick dans gnome-characters
-//j'ai toujours paul@localhost:~/Documents/Ratrapages C/Workspace> qui s'affiche quand je lance, j'essaie direct dans un tty en vm (suse), marche pas jsp pourquoi
-// j'essaie sur mon serv, par defaut gcc n'est pas installé sur ubuntu server, curieux.
-//git : https://github.com/PaulVerot03/spaceinvaders //je l'ai mis sur github histoire de plus facillement tester sur d'autres machines, nottament la vm foireuse
+//5/6 en testant sur plusieur écrans : 1080*1920 => 62*272 || 1050*1680 => 62*237 || 1600*900 (vertical) => 96*126 ||| {stty size}
+//5/6 penser a chercher le shmilblick dans gnome-characters
+//5/6 j'ai toujours paul@localhost:~/Documents/Ratrapages C/Workspace> qui s'affiche quand je lance, 10/6 j'essaie direct dans un tty en vm (suse), marche pas jsp pourquoi (ncurses est chiant a installer sur suse sans gui, c'est pratique yast 1 click)
+//12/6 j'essaie sur mon serv, par defaut gcc n'est pas installé sur ubuntu server, curieux.
+//6/6 git : https://github.com/PaulVerot03/spaceinvaders //je l'ai mis sur github histoire de plus facillement tester sur d'autres machines, nottament la vm foireuse
 
 
 void INIT() {
-  initscr();  
+  //initscr();  
   WINDOW *win = initscr();
   curs_set(0);
   nonl();
@@ -68,18 +68,33 @@ void init_ship(){
 }
 
 void print_ship(){
-  mvaddch(32,ship,'8'); //ACS_BLOCK apparait comme un # en cherchant dans curses.h je trouve #define ACS_BLOCK   NCURSES_ACS('0') /*solid square block*/, donc bah, je sais pas
+  attron(COLOR_SHIP);
+  mvaddch(LINES - 1,ship,ACS_BLOCK); //ACS_BLOCK apparait comme un # 
+  //en cherchant dans curses.h je trouve #define ACS_BLOCK   NCURSES_ACS('0') /*solid square block*/, donc bah, je sais pas 
+  // trouvé, ya pas de couleur par défaut, faut en definir une pour ACS ? Quand j'essaie avec une lettre ca s'affiche en blanc par defaut
 }
 
 int **bombs;
-
+int rows = LINES;
+int columns = COLS; 
 void init_bombs(){
-  int nbBombs = 15;
-  bombs = malloc(sizeof(int *)*nbBombs); //j'ai beaucoup de mal avec malloc, ducoup j'ai demandé de l'aide a une amie
+  bombs = (int **)malloc(sizeof(int *)*rows); //j'ai beaucoup de mal avec malloc, ducoup j'ai demandé de l'aide a une amie : ici, j'attribut une première dimension au tableau
+  for(int i = 0 ; i < rows; i++){
+    bombes[i] = (int*)malloc(columns * sizeof(int)); //j'ai pas tout compris mais ca à l'air de marcher
+  }
+  for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < columns; j++) {
+           bombes[i][j]= 0;
+        }
+        
+    }
 
 }
     
-void print_bombs();
+void print_bombs(){ 
+  attron(COLOR_BOMBS);
+  
+}
 
 int **shots;
 void init_shots();
@@ -108,10 +123,10 @@ void game_over(int won);
 
 void main(int argc, char *argv[]){
   INIT();
-  //printf(0xE2);
   print_ship();
   refresh();
  // DONE();
+ free(bombes);
 
 
 }
