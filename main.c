@@ -10,9 +10,9 @@
 
 //en testant sur plusieur écrans : 1080*1920 => 62*272 || 1050*1680 => 62*237 || 1600*900 (vertical) => 96*126 ||| {stty size}
 //penser a chercher le shmilblick dans gnome-characters
-//j'ai toujours paul@localhost:~/Documents/Ratrapages C/Workspace> qui s'affiche quand je lance, j'essaie direct dans un tty en vm (suse)
-
-//git : https://github.com/PaulVerot03/spaceinvaders
+//j'ai toujours paul@localhost:~/Documents/Ratrapages C/Workspace> qui s'affiche quand je lance, j'essaie direct dans un tty en vm (suse), marche pas jsp pourquoi
+// j'essaie sur mon serv, par defaut gcc n'est pas installé sur ubuntu server, curieux.
+//git : https://github.com/PaulVerot03/spaceinvaders //je l'ai mis sur github histoire de plus facillement tester sur d'autres machines, nottament la vm foireuse
 
 
 void INIT() {
@@ -68,14 +68,14 @@ void init_ship(){
 }
 
 void print_ship(){
-  mvaddch(32,ship,'8');
+  mvaddch(32,ship,'8'); //ACS_BLOCK apparait comme un # en cherchant dans curses.h je trouve #define ACS_BLOCK   NCURSES_ACS('0') /*solid square block*/, donc bah, je sais pas
 }
 
 int **bombs;
 
 void init_bombs(){
   int nbBombs = 15;
-  bombs = malloc(sizeof(int *)*nbBombs);
+  bombs = malloc(sizeof(int *)*nbBombs); //j'ai beaucoup de mal avec malloc, ducoup j'ai demandé de l'aide a une amie
 
 }
     
