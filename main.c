@@ -42,8 +42,20 @@ void DONE() {
   endwin();
 }
 
+int ship;
+
+int ERR;
 void wait_key() {
   while (getch() == ERR) {
+    switch (ERR){
+      case KEY_LEFT:
+        ship -= 1;
+        break;
+      case KEY_RIGHT:
+        ship += 1;
+        break;
+    }
+    refresh();
     usleep(1000);
   }
 }
@@ -62,7 +74,6 @@ int aliens_rate = 4;
 int bombs_rate = 8;
 int bombs_chance = 12;
 
-int ship;
 void init_ship(){
   ship = COLS/2; //normalement, si COLS est impair, la division de deux ints reste un int
 }
@@ -72,19 +83,20 @@ void print_ship(){
   mvaddch(LINES - 1,ship,ACS_BLOCK); //ACS_BLOCK apparait comme un # 
   //en cherchant dans curses.h je trouve #define ACS_BLOCK   NCURSES_ACS('0') /*solid square block*/, donc bah, je sais pas 
   // trouvé, ya pas de couleur par défaut, faut en definir une pour ACS ? Quand j'essaie avec une lettre ca s'affiche en blanc par defaut
-}
+}ERR
 
 int **bombs;
-int rows = LINES;
-int columns = COLS; 
+//int rows = LINES; //main.c:78:12: error: initializer element is not constant  
+//int columns = COLS;  //main.c:79:15: error: initializer element is not constant; bon bah ca degage
+   
 void init_bombs(){
-  bombs = (int **)malloc(sizeof(int *)*rows); //j'ai beaucoup de mal avec malloc, ducoup j'ai demandé de l'aide a une amie : ici, j'attribut une première dimension au tableau
-  for(int i = 0 ; i < rows; i++){
-    bombes[i] = (int*)malloc(columns * sizeof(int)); //j'ai pas tout compris mais ca à l'air de marcher
+  bombs = (int **)malloc(sizeof(int *)*LINES); //j'ai beaucoup de mal avec malloc, ducoup j'ai demandé de l'aide a une amie : ici, j'attribut une première dimension au tableau
+  for(int i = 0 ; i < LINES; i++){
+    bombs[i] = (int*)malloc(COLS * sizeof(int)); //j'ai pas tout compris mais ca à l'air de marcher
   }
-  for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < columns; j++) {
-           bombes[i][j]= 0;
+  for (int i = 0; i < LINES; i++) {
+        for (int j = 0; j < COLS; j++) { //initialise toutes les bombes à 0. elles seront attribuée plus tard.
+           bombs[i][j]= 0;
         }
         
     }
@@ -125,8 +137,9 @@ void main(int argc, char *argv[]){
   INIT();
   print_ship();
   refresh();
+  wait_key();
  // DONE();
- free(bombes);
+ free(bombs);
 
 
 }
