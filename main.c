@@ -44,7 +44,6 @@ void DONE() {
 
 int ship;
 
-int ERR;
 void wait_key() {
   while (getch() == ERR) {
     switch (ERR){
@@ -56,7 +55,7 @@ void wait_key() {
         break;
     }
     refresh();
-    usleep(1000);
+    //usleep(1000);
   }
 }
 
@@ -83,7 +82,7 @@ void print_ship(){
   mvaddch(LINES - 1,ship,ACS_BLOCK); //ACS_BLOCK apparait comme un # 
   //en cherchant dans curses.h je trouve #define ACS_BLOCK   NCURSES_ACS('0') /*solid square block*/, donc bah, je sais pas 
   // trouvé, ya pas de couleur par défaut, faut en definir une pour ACS ? Quand j'essaie avec une lettre ca s'affiche en blanc par defaut
-}ERR
+}
 
 int **bombs;
 //int rows = LINES; //main.c:78:12: error: initializer element is not constant  
@@ -136,8 +135,8 @@ void game_over(int won);
 void main(int argc, char *argv[]){
   INIT();
   print_ship();
-  refresh();
   wait_key();
+  refresh();
  // DONE();
  free(bombs);
 
