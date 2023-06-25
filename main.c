@@ -15,12 +15,12 @@
 // paul@localhost:~/Documents/Ratrapages C/Workspace> qui s'affiche quand je lance, mais ca s'affiche pas sur cow... //14/6 avec scrollok ca disparait mais si j'appui sur une touche ca re-apparait si je scroll, ca ferme le programme, ok.
 // 12/6 j'essaie sur mon serv, par defaut gcc n'est pas installé sur ubuntu server, curieux. 6/6 git : https://github.com/PaulVerot03/spaceinvaders
 
-void INIT(void) {
-  // initscr();
+void INIT() {
+  initscr();
   WINDOW *win = initscr();
   curs_set(0);
   nonl();
-  scrollok(win,TRUE); // main.c:23:3: error: too few arguments to function ‘scrollok’ trouvé, la doc est foireuse et indique pas comment ca marche.
+  //scrollok(win,TRUE); // main.c:23:3: error: too few arguments to function ‘scrollok’ trouvé, la doc est foireuse et indique pas comment ca marche.
   start_color();
   init_pair(1, COLOR_BLUE, COLOR_BLUE);
   init_pair(2, COLOR_YELLOW, COLOR_YELLOW);
@@ -40,8 +40,7 @@ void INIT(void) {
   init_ship();
   init_bombs();
   init_shots();
-  //init_shields();
-  
+  init_shields();
 }
 
 void DONE() { endwin(); }
@@ -52,8 +51,14 @@ void wait_key() {
   while (getch() == ERR) {
     switch (ERR) {
     case KEY_LEFT:
+      ship -- ;
+      print_ship();
       break;
     case KEY_RIGHT:
+      ship ++;
+      print_ship();
+      break;
+    default:
       break;
     }
     usleep(1000);
@@ -75,7 +80,7 @@ int aliens_rate = 4;
 int bombs_rate = 8;
 int bombs_chance = 12;
 
-void init_ship(void) {
+void init_ship() {
   ship = COLS / 2;
 }
 
@@ -89,7 +94,8 @@ int **bombs;
 // int rows = LINES; //main.c:78:12: error: initializer element is not constant
 // int columns = COLS;  //main.c:79:15: error: initializer element is not constant; bon bah ca degage. Je comprend pas, sur des exemples en ligne ils font ca et ca marche
 
-void init_bombs(void) {
+void init_bombs() {
+  if(bombs != NULL){
   bombs = (int **)malloc(
       sizeof(int *) *
       LINES); // j'ai beaucoup de mal avec malloc, ducoup j'ai demandé de l'aide
@@ -102,6 +108,7 @@ void init_bombs(void) {
     for (int j = 0; j < COLS; j++) { // initialise toutes les bombes à 0. il n'y a pas de bombes immédiatement au début.
       bombs[i][j] = 0;
     }
+  }
   }
 }
 
@@ -118,7 +125,8 @@ void print_bombs() {
 }
 
 int **shots;
-void init_shots(void) {
+void init_shots() {
+  if (shots != NULL){
   shots = (int **)malloc(sizeof(int *) * LINES); // copié collé des bombes
   for (int i = 0; i < LINES; i++) {
     shots[i] = (int *)malloc(COLS * sizeof(int));
@@ -128,6 +136,8 @@ void init_shots(void) {
       shots[i][j] = 0;
     }
   }
+  }
+  
 }
 void print_shots() {
   attron(COLOR_SHOTS);
@@ -142,19 +152,37 @@ void print_shots() {
 }
 
 int **shields;
-/*
+int shield_count = 8;
+int shield_width = 2;
+int shield_spacing; 
+
 void init_shields(int count, int width) {
-  shields = (int **)malloc(sizeof(int *) * LINES);
+  int flip = 0;
+  if (shields != NULL){
+    shields = (int **)malloc(sizeof(int *) * LINES);
+  }
   for (int i = 0; i < LINES; i++) {
     shields[i] = (int *)malloc(COLS * sizeof(int));
   }
+  shield_spacing = COLS/(shield_count*2);
   for (int i = LINES - 5; i < LINES - 3; i++) {
     for (int j = 0; j < COLS; j++) {
-      shields[i][j] = 1;
+      if (flip < shield_width +1){
+        shields[i][j] = 1;
+        flip += 1;
+      }
+      else if (flip > shield_width){
+        shields[i][j] = 0;
+        flip += 1 ;
+        if (flip > shield_spacing){
+          flip = 0;
+        }
+      }
+      
     }
   }
-  /*  //Segmentation fault (core dumped) //bon bah on va pas faire ca
-  shields = (int **)malloc(sizeof(int *) * 2); // comme il n'y a que deux lignes de bombes 
+    //Segmentation fault (core dumped) //bon bah on va pas faire ca
+  /*shields = (int **)malloc(sizeof(int *) * 2); // comme il n'y a que deux lignes de bombes 
   for (int i = 0; i < 2; i++) {
     shields[i] = (int *)malloc(COLS * sizeof(int));
   }
@@ -162,49 +190,40 @@ void init_shields(int count, int width) {
     for (int j = 0; j < COLS; j++) {
       shields[i][j] = 1;
     }
-  }
+  }*/
 }
-*/
-int shield_count = 3;
-int shield_width = 10;
-int shield_spacing; 
+
+
 /*
 void init_shields(int count, int width) {
     shield_count = count;
     shield_width = width;
 
-    // Calculer l'espacement entre les boucliers pour les répartir sur la largeur de l'écran
+    // Calculer l'espacement entre les boucliers pour les répartir sur la largeur de l'écran ///mega foireux
     int total_width = shield_count * shield_width;
     int available_width = COLS - total_width;
     shield_spacing = available_width / (shield_count + 1);
 
-    // Allouer de la mémoire pour le tableau de boucliers
-    shields = (int **)malloc(sizeof(int *) * shield_count);
+    
+    shields = (int **)malloc(sizeof(int *) * LINES); 
 
-    // Initialiser les boucliers dans le tableau
-    for (int i = 0; i < shield_count; i++) {
+    for (int i = 0; i < LINES; i++) {     // Initialise les boucliers dans le tableau
         shields[i] = (int *)malloc(sizeof(int) * COLS);
 
-        // Initialiser à 0 (pas de bouclier)
-        for (int j = 0; j < COLS; j++) {
-            shields[i][j] = 0;
+        for (int j = 0; j < COLS; j++) { 
+          //ici trouver une maniere de faire 1/2
+           shields[i][j] = 0;
         }
 
-        // Calculer les positions du bouclier dans le tableau
-        int start_col = (i + 1) * shield_spacing + i * shield_width;
-        int end_col = start_col + shield_width - 1;
+       // int start_col = (i + 1) * shield_spacing + i * shield_width; //ok, donc ca c'est cassé 
+        //int end_col = start_col + shield_width - 1;
 
-        // Placer le bouclier dans le tableau
-        for (int j = start_col; j <= end_col; j++) {
-            shields[i][j] = 1;
+        for (int j = 0; j <= COLS; j++) {
+           shields[i][j] = 1;
         }
     }
-}*/
-
-
-
-
-
+}
+*/
 
 void print_shields() { 
   attron(COLOR_SHIELDS);
@@ -222,12 +241,12 @@ void print_shields() {
 int **aliens, aliens_count;
 char **frames ;
 char *frames_data;
-int frames_count, frames_height = 3, frames_width = 6;
-void init_aliens(char *path){ //ca pareil, j'ai demandé de l'aide
-    FILE *file = fopen(path, "r");
-    if (file == NULL) {
-        exit(1);
-    }
+int frames_count, frames_height = 3, frames_width = 6;/*
+void init_aliens(char *path){ //ca pareil, j'ai demandé de l'aide, je ne suis pas sur que ca marche, je fais confiance a @satan's queen sur discord
+  FILE *file = fopen(path, "r");
+  if (file == NULL) {
+    exit(1);
+  }
 
     // compte les lignes
     int line_count = 0;
@@ -260,9 +279,9 @@ void init_aliens(char *path){ //ca pareil, j'ai demandé de l'aide
     frames = malloc(sizeof(char *) * frames_count);
 
     for (i = 0; i < frames_count; i++) {
-        frames[i] = frames_data + i * frames_height * frames_width;
+      frames[i] = frames_data + i * frames_height * frames_width;
     }
-}
+}*/
 void print_alien_frame(int frame, int row, int col);
 void print_aliens();
 
@@ -271,7 +290,7 @@ void init_game(char *aliens_path, int shields_count, int shields_width);
 void print_game() {}
 void game_over(int won);
 
-void main(int argc, char *argv[]) {
+int  main(void) {
   //init_shields(shield_count, shield_width);
   //char *path = "aliens.txt";
   //init_aliens(path);
@@ -279,17 +298,27 @@ void main(int argc, char *argv[]) {
   print_ship();
   print_bombs();
   print_shots();
-  //print_shields();
+  print_shields();
   wait_key();
   refresh();
-  DONE(); // celui là ferme correctement la page mais pas ceux que j'ai mis plus haut avec une touche
-  for (int i = 0; i < shield_count; i++) {
-        free(shields[i]);
-    }
-  free(shields);
-  free(shots);
-  free(shields);
-  free(frames);
-  free(frames_data);
-  free(bombs);
+  //DONE(); // celui là ferme correctement la page mais pas ceux que j'ai mis plus haut avec une touche
+  /*for (int i = 0; i < shield_count; i++) {
+    free(shields[i]);
+  }*/
+//je comprend pas, j'ai  free(): double free detected in tcache 2 Aborted (core dumped) ; ducoup je check d'abbord si c'est occupé avant de liberer et ca marche pas quand meme
+  if(shots != NULL){free(shots);}
+  if(frames != NULL){free(frames);}
+  if(frames_data != NULL){free(frames_data);}
+  if(bombs != NULL){free(bombs);}
+  int i_shield = 0;
+  while (shields[i_shield] != NULL){ //potentiellement foireux
+    free(shields[i_shield]);
+    i_shield ++;
+  }
+  //free(shields);
+  //free(shots);
+  //free(shields);
+  //free(frames);
+  //free(frames_data);
+  //free(bombs);
 }
